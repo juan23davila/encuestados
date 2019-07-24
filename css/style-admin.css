@@ -22,6 +22,10 @@ button .fa-plus {
 	background-color: #cc1952;
 }
 
+#editQuestion:hover {
+	background-color: rgb(179, 167, 3);
+}
+
 .botones {
 	text-align: center;
 	margin: 40px 0 60px;

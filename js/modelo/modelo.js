@@ -8,6 +8,9 @@ var Modelo = function() {
   //inicializacion de eventos
   this.preguntaAgregada = new Evento(this);
   this.preguntaEliminada = new Evento(this);
+  this.preguntaEditada = new Evento(this);
+  this.preguntasBorradas = new Evento(this);
+  this.preguntasRestablecidas = new Evento(this);
 };
 
 Modelo.prototype = {
@@ -47,7 +50,36 @@ Modelo.prototype = {
     this.preguntaEliminada.notificar();
   },
 
+  editarPregunta: function(nombre, respuestas, idQuestion, posQuestion){
+    var nuevaPregunta = {'textoPregunta': nombre, 'id': idQuestion, 'cantidadPorRespuesta': respuestas};
+    this.preguntas.splice(posQuestion, 1, nuevaPregunta);
+    this.guardar();
+    this.preguntaEditada.notificar();
+  },
+
+  agregarVotosDeUsuarios: function(idPregunta){},
+
+  borrarTodasLasPreguntas: function(){
+    console.log("por aqui si entra");
+    this.preguntas = [];
+    this.guardar();
+    this.preguntasBorradas.notificar();
+  },
+
+  agregarRespuesta: function(){
+    //No hace falta, pues estas ya se adicionan al crear pregunta y editarlas
+  },
+
+
+  sumarleVotoARespuesta: function(idPregunta){}, 
+
   //se guardan las preguntas
   guardar: function(){
+    localStorage.setItem("preguntas", JSON.stringify(this.preguntas));
   },
+
+  reestablecerDataLocalStorage: function(preguntasLocalStorage){
+    this.preguntas = preguntasLocalStorage;
+    this.preguntasRestablecidas.notificar();
+  }
 };
