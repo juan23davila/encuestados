@@ -10,7 +10,33 @@ var VistaUsuario = function(modelo, controlador, elementos) {
   //suscripcion a eventos del modelo
   this.modelo.preguntaAgregada.suscribir(function() {
     contexto.reconstruirLista();
+    contexto.reconstruirGrafico(); 
   });
+
+  this.modelo.preguntaEliminada.suscribir(function() {
+    contexto.reconstruirLista();
+    contexto.reconstruirGrafico(); 
+  });
+
+  this.modelo.preguntaEditada.suscribir(function() { 
+    contexto.reconstruirLista(); 
+    contexto.reconstruirGrafico(); 
+  });
+
+  this.modelo.preguntasBorradas.suscribir(function() { 
+    contexto.reconstruirLista(); 
+    contexto.reconstruirGrafico(); 
+  });
+
+  this.modelo.preguntasRestablecidas.suscribir(function() { 
+    contexto.reconstruirLista();
+    contexto.reconstruirGrafico();  
+  });
+
+  this.modelo.respuestaAgregada.suscribir(function() { 
+    contexto.reconstruirGrafico(); 
+  });
+
 };
 
 VistaUsuario.prototype = {
@@ -49,8 +75,12 @@ VistaUsuario.prototype = {
     var contexto = this;
     var preguntas = this.modelo.preguntas;
     preguntas.forEach(function(clave){
-      //completar
-      //agregar a listaPreguntas un elemento div con valor "clave.textoPregunta", texto "clave.textoPregunta", id "clave.id"
+      var nuevaPregunta = $('<div>', {
+        id: clave.id,
+        value: clave.textoPregunta,
+        text: clave.textoPregunta,
+      })
+      listaPreguntas.append(nuevaPregunta);
       var respuestas = clave.cantidadPorRespuesta;
       contexto.mostrarRespuestas(listaPreguntas,respuestas, clave);
     })

@@ -95,18 +95,29 @@ VistaAdministrador.prototype = {
 
     //editar Pregunta
     e.botonEditarPregunta.click(()=>{
-      var id = parseInt($('.list-group-item.active').attr('id'));
+
+      // Se limpia el formulario por si el usuario se encuentra registrando una nueva pregunta
       contexto.limpiarFormulario();
+      let $respuestasVacias = $('.form-group.answer.has-feedback');
+      $respuestasVacias.each(function(respuesta){
+        attrClass = $(this).attr('class');
+        if(!attrClass.includes("hide")){
+          $(this).attr('class', "form-group answer has-feedback has-success");
+        }
+      });
+      contexto.limpiarFormulario(); //Fin de la limpieza del formulario
+
+      //Pregunta seleccionada
+      var id = parseInt($('.list-group-item.active').attr('id'));
 
       if(!isNaN(id)){
-        //Se obtiene informació de la pregunta
+        //Se obtiene información de la pregunta
         let preguntaToEdit = this.modelo.preguntas.filter((pregunta)=>{
           return pregunta.id == id;
         })
-        e.idQuestionToEdit.val(preguntaToEdit[0].id);
 
-        //Se despliega información de la pregunta
-        deplegarInfoPregunta(e.pregunta, e.respuesta, preguntaToEdit, this);
+        //Se despliega información de la pregunta para editarla
+        deplegarInfoPregunta(e.pregunta, e.respuesta, preguntaToEdit[0], this);
         //Se muestra el botón de editar pregunta
         e.botonEditQuestion.show();
         e.botonAgregarPregunta.hide();
@@ -114,6 +125,8 @@ VistaAdministrador.prototype = {
         //Se obtiene la posición del elemento a modificar
         var index = indexDePregunta(this.modelo.preguntas, "id", id);
         e.posQuestionToEdit.val(index);
+
+        localStorage.setItem("preguntaToEdit", JSON.stringify(preguntaToEdit[0]));
 
       }else{
         alert("Debe seleccionar una pregunta");
@@ -123,18 +136,29 @@ VistaAdministrador.prototype = {
 
     //Editar pregunta fase 2
     e.botonEditQuestion.click(()=>{
+      //Se obtiene info de la pregunta sin modifical
+      var preguntaNoModificada = JSON.parse(localStorage.getItem("preguntaToEdit"));
+
       var value = e.pregunta.val();
-      var idQuestion = e.idQuestionToEdit.val();
+      var idQuestion = preguntaNoModificada.id;
       var posQuestion = e.posQuestionToEdit.val();
       var respuestas = [];
+      var contador = 0;
+      var cantidadRespondida
 
+      //Se recorren las respuestas modificadas
       $('[name="option[]"]').each(function(respuesta) {
         respuesta = $(this).val();
         if (respuesta.length > 0) {
-          respuestas.push({'textoRespuesta':respuesta, 'cantidad':0});
+          if(preguntaNoModificada.cantidadPorRespuesta.length > contador){
+            cantidadRespondida = preguntaNoModificada.cantidadPorRespuesta[contador]["cantidad"];
+          }else{
+            cantidadRespondida = 0;
+          }
+          contador++;
+          respuestas.push({'textoRespuesta':respuesta, 'cantidad':cantidadRespondida});
         }
       })
-
       contexto.limpiarFormulario();
       contexto.controlador.editarPregunta(value, respuestas, idQuestion, posQuestion);
 
@@ -154,7 +178,10 @@ VistaAdministrador.prototype = {
 
   obtenerPreguntasLocalStorage: function() {
     let pregsLocalStorage = JSON.parse(localStorage.getItem("preguntas"));
-    this.controlador.reestablecerDataLocalStorage(pregsLocalStorage);
+    //Valida si se ha guardado información en localStorage
+    if(pregsLocalStorage != null){
+      this.controlador.reestablecerDataLocalStorage(pregsLocalStorage);
+    }
   },
 
   limpiarFormulario: function(){
@@ -162,17 +189,16 @@ VistaAdministrador.prototype = {
   },
 };
 
-
 /**
  * Encargada de deplegar la información para que esta pueda ser editada
  */
 function deplegarInfoPregunta(preguntaVista, respuestaVista, preguntaEdit, contexto){
-  preguntaVista.val(preguntaEdit[0].textoPregunta);
+  preguntaVista.val(preguntaEdit.textoPregunta);
 
   let primeraRespuesta = true;
 
   //Se despliegan las respuestas
-  preguntaEdit[0].cantidadPorRespuesta.forEach(respuesta=>{
+  preguntaEdit.cantidadPorRespuesta.forEach(respuesta=>{
     if(primeraRespuesta){
       respuestaVista.children(".form-control").val(respuesta.textoRespuesta);
       primeraRespuesta = false;
@@ -195,7 +221,7 @@ function deplegarInfoPregunta(preguntaVista, respuestaVista, preguntaEdit, conte
 
 /**
  * Obtiene posición en el arreglo de preguntas dado un id
- */
+*/ 
 function indexDePregunta(arrayToSearch, clave, valor) { 
   for (var i = 0; i < arrayToSearch.length; i++) {
     if (arrayToSearch[i][clave] == valor) {

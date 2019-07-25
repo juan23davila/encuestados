@@ -11,6 +11,7 @@ var Modelo = function() {
   this.preguntaEditada = new Evento(this);
   this.preguntasBorradas = new Evento(this);
   this.preguntasRestablecidas = new Evento(this);
+  this.respuestaAgregada = new Evento(this);
 };
 
 Modelo.prototype = {
@@ -47,6 +48,7 @@ Modelo.prototype = {
     })
 
     this.preguntas = preguntasMenosUno;
+    this.guardar();
     this.preguntaEliminada.notificar();
   },
 
@@ -57,7 +59,19 @@ Modelo.prototype = {
     this.preguntaEditada.notificar();
   },
 
-  agregarVotosDeUsuarios: function(idPregunta){},
+  agregarRespuesta: function(nombrePregunta,respuestaSeleccionada){
+    for (var i = 0; i < this.preguntas.length; i++) {
+      if (this.preguntas[i]["textoPregunta"] == nombrePregunta) {
+        for(var j = 0; j < this.preguntas[i].cantidadPorRespuesta.length; j++){
+          if (this.preguntas[i].cantidadPorRespuesta[j]["textoRespuesta"] == respuestaSeleccionada){
+            this.preguntas[i].cantidadPorRespuesta[j]["cantidad"] = this.preguntas[i].cantidadPorRespuesta[j]["cantidad"] + 1;
+          }
+        }
+      }
+    }
+    this.guardar();
+    this.respuestaAgregada.notificar();
+  },
 
   borrarTodasLasPreguntas: function(){
     console.log("por aqui si entra");
@@ -65,11 +79,6 @@ Modelo.prototype = {
     this.guardar();
     this.preguntasBorradas.notificar();
   },
-
-  agregarRespuesta: function(){
-    //No hace falta, pues estas ya se adicionan al crear pregunta y editarlas
-  },
-
 
   sumarleVotoARespuesta: function(idPregunta){}, 
 

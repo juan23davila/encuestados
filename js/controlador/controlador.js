@@ -20,5 +20,8 @@ Controlador.prototype = {
   },
   reestablecerDataLocalStorage: function(pregsLocalStorage){
     this.modelo.reestablecerDataLocalStorage(pregsLocalStorage);
+  },
+  agregarVoto: function(nombrePregunta,respuestaSeleccionada){
+    this.modelo.agregarRespuesta(nombrePregunta,respuestaSeleccionada);
   }
 };
